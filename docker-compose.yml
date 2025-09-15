@@ -15,6 +15,7 @@ services:
     image: postfix-auth-relay
     ports:
       - "587:25"
+      - "465:465"
     restart: always
     volumes:
       - ./sasldb2:/etc/sasldb2
