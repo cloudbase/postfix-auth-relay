@@ -12,6 +12,8 @@ RUN apt-get update && apt-get install -y \
 
 RUN mkdir -p /etc/postfix /var/spool/postfix /etc/postfix/sasl /etc/postfix/maps /var/run/saslauthd
 
+COPY master.cf /etc/postfix/master.cf
+RUN chmod 644 /etc/postfix/master.cf
 COPY main.cf /etc/postfix/main.cf
 RUN chmod 644 /etc/postfix/main.cf
 COPY smtpd.conf /etc/postfix/sasl/smtpd.conf
@@ -28,6 +30,7 @@ RUN ln -s /var/run/saslauthd/mux /var/spool/postfix/var/run/saslauthd/mux
 RUN sed -i 's/^\(smtp.*inet.*\)y/\1n/' /etc/postfix/master.cf
 
 EXPOSE 25
+EXPOSE 465
 
 # RUN /usr/sbin/postmap /etc/postfix/maps/relay_domains
 RUN /usr/sbin/postconf compatibility_level=3.7

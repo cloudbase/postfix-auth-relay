@@ -32,7 +32,11 @@ def parse_args():
     parser.add_argument(
         '--no-tls', required=False,
         action='store_true',
-        help="Do not use TLS")
+        help="Do not use opportunistic TLS (STARTTLS)")
+    parser.add_argument(
+        '--smtps', required=False,
+        action='store_true',
+        help="Use SMTPS (implies --no-tls)")
 
     # If no arguments are provided, print help
     if len(sys.argv) == 1:
@@ -43,7 +47,7 @@ def parse_args():
 
 
 def send_email(host, port, username, password, sender, recipient, no_tls,
-               no_login):
+               no_login, use_smtps):
     if not sender:
         sender = username
     if not recipient:
@@ -59,8 +63,14 @@ def send_email(host, port, username, password, sender, recipient, no_tls,
 
     msg.attach(MIMEText(body, 'plain'))
 
+    if use_smtps:
+        smtp_cls = smtplib.SMTP_SSL
+        no_tls = True
+    else:
+        smtp_cls = smtplib.SMTP
+
     try:
-        with smtplib.SMTP(host, port) as server:
+        with smtp_cls(host, port) as server:
             if not no_tls:
                 server.starttls()
             if not no_login:
@@ -74,4 +84,4 @@ def send_email(host, port, username, password, sender, recipient, no_tls,
 if __name__ == "__main__":
     args = parse_args()
     send_email(args.host, args.port, args.username, args.password, args.sender,
-               args.recipient, args.no_tls, args.no_login)
+               args.recipient, args.no_tls, args.no_login, args.smtps)
